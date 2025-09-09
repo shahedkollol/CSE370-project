@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - DA Transporter</title>
+    <style>
+        :root {
+            --primary: #000000;
+            --secondary: #FFFFFF;
+            --accent: #FF5E5B;
+            --admin: #4CAF50;
+            --shadow: 8px 8px 0px var(--primary);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Courier New', monospace; }
+        body { background: linear-gradient(45deg, var(--admin), var(--secondary)); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .admin-login-container { width: 100%; max-width: 450px; border: 3px solid var(--primary); padding: 40px 30px; background-color: var(--secondary); box-shadow: var(--shadow); position: relative; border-radius: 12px; }
+        .admin-login-container::before { content: ''; position: absolute; top: 6px; left: 6px; right: -6px; bottom: -6px; border: 3px solid var(--primary); z-index: -1; border-radius: 12px; }
+        .admin-header { text-align: center; margin-bottom: 30px; }
+        .admin-icon { font-size: 48px; margin-bottom: 15px; }
+        h1 { color: var(--primary); margin-bottom: 10px; font-size: 28px; font-weight: 900; text-transform: uppercase; }
+        .admin-subtitle { color: var(--admin); font-weight: bold; font-size: 14px; }
+        .input-group { margin-bottom: 20px; position: relative; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; color: var(--primary); text-transform: uppercase; }
+        input { width: 100%; padding: 12px 15px; border: 3px solid var(--primary); background-color: var(--secondary); font-size: 16px; outline: none; transition: all 0.3s; font-family: 'Courier New', monospace; }
+        input:focus { box-shadow: 4px 4px 0px var(--primary); }
+        .admin-login-btn { width: 100%; padding: 15px; background-color: var(--admin); color: var(--secondary); border: 3px solid var(--primary); font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 20px; transition: all 0.3s; font-family: 'Courier New', monospace; text-transform: uppercase; }
+        .admin-login-btn:hover { box-shadow: 4px 4px 0px var(--primary); transform: translate(-2px, -2px); }
+        .admin-login-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+        .back-btn { position: absolute; top: 20px; left: 20px; padding: 10px 20px; background-color: var(--secondary); color: var(--primary); border: 3px solid var(--primary); text-decoration: none; font-weight: bold; transition: all 0.3s; }
+        .back-btn:hover { box-shadow: 4px 4px 0px var(--primary); transform: translate(-2px, -2px); }
+        .error-message { color: var(--accent); font-weight: bold; margin-top: 10px; padding: 10px; border: 2px solid var(--accent); display: none; text-align: center; }
+        .success-message { color: var(--admin); font-weight: bold; margin-top: 10px; padding: 10px; border: 2px solid var(--admin); display: none; text-align: center; }
+        .admin-features { margin-top: 30px; padding: 20px; border: 2px dashed var(--admin); background-color: #f0f8f0; }
+        .feature-title { font-weight: bold; color: var(--primary); margin-bottom: 10px; text-transform: uppercase; }
+        .feature-list { font-size: 12px; color: var(--primary); line-height: 1.6; }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-btn">← BACK</a>
+    <div class="admin-login-container">
+        <div class="admin-header">
+            <div class="admin-icon">👨‍💼</div>
+            <h1>Admin Portal</h1>
+            <div class="admin-subtitle">DA Transporter Management</div>
+        </div>
+        <form id="adminLoginForm">
+            <div class="input-group">
+                <label for="adminEmail">Admin Email (G Suite)</label>
+                <input type="email" id="adminEmail" name="email" placeholder="admin@datransporter.com" required>
+            </div>
+            <div class="input-group">
+                <label for="adminPassword">Password</label>
+                <input type="password" id="adminPassword" name="password" placeholder="••••••••" required>
+            </div>
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+            <button type="submit" class="admin-login-btn" id="loginBtn">Admin Login</button>
+        </form>
+        <div class="admin-features">
+            <div class="feature-title">Admin Features</div>
+            <div class="feature-list">
+                • Manage all users and drivers<br>
+                • Monitor trip statistics<br>
+                • Handle complaints and reviews<br>
+                • Manage bus routes and schedules<br>
+                • View financial reports<br>
+                • System notifications and alerts
+            </div>
+        </div>
+    </div>
+    <script>
+        // Clear any existing admin session data when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Clear localStorage admin data
+            localStorage.removeItem('admin_logged_in');
+            localStorage.removeItem('admin_email');
+            localStorage.removeItem('admin_name');
+            
+            console.log('Admin login page loaded - session data cleared');
+        });
+
+        document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const errorMsg = document.getElementById('errorMessage');
+            const successMsg = document.getElementById('successMessage');
+            const loginBtn = document.getElementById('loginBtn');
+            
+            // Hide previous messages
+            errorMsg.style.display = 'none';
+            successMsg.style.display = 'none';
+            
+            // Disable login button
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Verifying...';
+            
+            fetch('Backend/admin_login.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Admin Login';
+                
+                if (data.success) {
+                    successMsg.textContent = data.message;
+                    successMsg.style.display = 'block';
+                    
+                    // Set localStorage data
+                    localStorage.setItem('admin_logged_in', 'true');
+                    localStorage.setItem('admin_email', data.data.email);
+                    localStorage.setItem('admin_name', data.data.name || 'Administrator');
+                    
+                    // Redirect to dashboard
+                    setTimeout(() => {
+                        window.location.href = 'admin_dashboard.html';
+                    }, 1000);
+                } else {
+                    errorMsg.textContent = data.message;
+                    errorMsg.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Admin Login';
+                console.error('Error:', error);
+                errorMsg.textContent = 'Login failed. Please try again.';
+                errorMsg.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

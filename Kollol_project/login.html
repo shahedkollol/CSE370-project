@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Login - DA Transporter</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        :root {
+            --primary: #000000;
+            --secondary: #FFFFFF;
+            --accent: #FF5E5B;
+            --shadow: 8px 8px 0px var(--primary);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+        }
+
+        body {
+            background-color: var(--secondary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            border: 3px solid var(--primary);
+            padding: 40px 30px;
+            background-color: var(--secondary);
+            box-shadow: var(--shadow);
+            position: relative;
+            border-radius: 12px;
+        }
+
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            right: -6px;
+            bottom: -6px;
+            border: 3px solid var(--primary);
+            z-index: -1;
+            border-radius: 12px;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 30px;
+            font-size: 28px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 3px solid var(--primary);
+            background-color: var(--secondary);
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+        }
+
+        input:focus {
+            box-shadow: 4px 4px 0px var(--primary);
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--accent);
+            color: var(--secondary);
+            border: 3px solid var(--primary);
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+        }
+
+        button:hover {
+            box-shadow: 4px 4px 0px var(--primary);
+            transform: translate(-2px, -2px);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--primary);
+        }
+
+        .footer a {
+            color: var(--primary);
+            font-weight: bold;
+            text-decoration: underline;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background-color: var(--secondary);
+            color: var(--primary);
+            border: 3px solid var(--primary);
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            box-shadow: 4px 4px 0px var(--primary);
+            transform: translate(-2px, -2px);
+        }
+
+        .error-message {
+            color: var(--accent);
+            font-weight: bold;
+            margin-top: 10px;
+            padding: 10px;
+            border: 2px solid var(--accent);
+            display: none;
+            text-align: center;
+        }
+
+        .success-message {
+            color: #4CAF50;
+            font-weight: bold;
+            margin-top: 10px;
+            padding: 10px;
+            border: 2px solid #4CAF50;
+            display: none;
+            text-align: center;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: var(--primary);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-btn">← BACK</a>
+    
+    <div class="login-container">
+        <h1>LOGIN</h1>
+
+        <form id="loginForm">
+            <div class="input-group">
+                <label for="email">EMAIL</label>
+                <input type="email" id="email" name="email" placeholder="your@email.com" required>
+            </div>
+
+            <div class="input-group">
+                <label for="password">PASSWORD</label>
+                <input type="password" id="password" name="password" placeholder="••••••••" required>
+            </div>
+
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+            <div class="loading" id="loading">Logging in...</div>
+
+            <button type="submit" id="loginBtn">SIGN IN</button>
+        </form>
+
+        <div class="footer">
+            Don't have an account? <a href="student_or_rider_html.html">Sign up</a> 
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const errorMsg = document.getElementById('errorMessage');
+            const successMsg = document.getElementById('successMessage');
+            const loading = document.getElementById('loading');
+            const loginBtn = document.getElementById('loginBtn');
+            
+            // Hide previous messages
+            errorMsg.style.display = 'none';
+            successMsg.style.display = 'none';
+            loading.style.display = 'block';
+            loginBtn.disabled = true;
+            
+            fetch('Backend/login.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                loading.style.display = 'none';
+                loginBtn.disabled = false;
+                
+                if (data.success) {
+                    successMsg.textContent = data.message;
+                    successMsg.style.display = 'block';
+                    
+                    // Store user data in localStorage
+                    localStorage.setItem('user_logged_in', 'true');
+                    localStorage.setItem('user_id', data.data.user_id);
+                    localStorage.setItem('user_name', data.data.name);
+                    localStorage.setItem('user_email', data.data.email);
+                    localStorage.setItem('user_type', data.data.user_type);
+                    localStorage.setItem('user_phone', data.data.phone);
+                    
+                    // Redirect to dashboard
+                    setTimeout(() => {
+                        window.location.href = data.data.redirect || 'dashboard.html';
+                    }, 1000);
+                } else {
+                    errorMsg.textContent = data.message;
+                    errorMsg.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                loading.style.display = 'none';
+                loginBtn.disabled = false;
+                console.error('Error:', error);
+                errorMsg.textContent = 'Login failed. Please try again.';
+                errorMsg.style.display = 'block';
+            });
+        });
+
+        // Check if already logged in
+        if (localStorage.getItem('user_logged_in') === 'true') {
+            window.location.href = 'dashboard.html';
+        }
+    </script>
+</body>
+</html>
