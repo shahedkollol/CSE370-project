@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - DA Transporter</title>
+    <style>
+        :root {
+            --primary: #000000;
+            --secondary: #FFFFFF;
+            --accent: #FF5E5B;
+            --success: #4CAF50;
+            --warning: #FFC107;
+            --shadow: 8px 8px 0px var(--primary);
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+        }
+        body {
+            background-color: var(--secondary);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--secondary);
+            border: 3px solid var(--primary);
+            box-shadow: var(--shadow);
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            right: -6px;
+            bottom: -6px;
+            border: 3px solid var(--primary);
+            z-index: -1;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--primary);
+            text-transform: uppercase;
+        }
+        .back-btn {
+            padding: 10px 20px;
+            background-color: var(--secondary);
+            color: var(--primary);
+            border: 3px solid var(--primary);
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .back-btn:hover {
+            box-shadow: 4px 4px 0px var(--primary);
+            transform: translate(-2px, -2px);
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        .profile-section {
+            background-color: var(--secondary);
+            border: 3px solid var(--primary);
+            box-shadow: var(--shadow);
+            padding: 30px;
+            position: relative;
+        }
+        .profile-section::before {
+            content: '';
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            right: -6px;
+            bottom: -6px;
+            border: 3px solid var(--primary);
+            z-index: -1;
+        }
+        .section-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-item {
+            background-color: var(--secondary);
+            border: 2px solid var(--primary);
+            padding: 15px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--accent);
+        }
+        .stat-label {
+            font-size: 10px;
+            font-weight: bold;
+            color: var(--primary);
+            text-transform: uppercase;
+        }
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">Profile Management</div>
+        <a href="dashboard.html" class="back-btn">BACK TO DASHBOARD</a>
+    </div>
+
+    <div class="container">
+        <!-- Personal Information Section (view only) -->
+        <div class="profile-section">
+            <h2 class="section-title">Personal Information</h2>
+            <div id="alert-container"></div>
+            <div id="profileInfo">
+                <!-- Profile info will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Statistics Section -->
+        <div class="profile-section">
+            <h2 class="section-title">Account Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" id="totalTrips">0</div>
+                    <div class="stat-label">Total Trips</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="completedTrips">0</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="totalEarnings">৳0</div>
+                    <div class="stat-label">Earnings</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="userRating">5.0</div>
+                    <div class="stat-label">Rating</div>
+                </div>
+            </div>
+            <!-- Student ID Section (for students only) -->
+            <div id="studentSection" style="display: none;">
+                <h3 class="section-title" style="font-size: 16px; margin-top: 30px;">Student Information</h3>
+                <div class="form-group">
+                    <label class="form-label">Student ID</label>
+                    <input type="text" id="studentId" class="form-input" readonly>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let userType = '';
+        let userId = '';
+
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alert-container');
+            alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => {
+                alertContainer.innerHTML = '';
+            }, 5000);
+        }
+
+        function loadProfileData() {
+            fetch('get_profile_data.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const profile = data.data.profile;
+                        const stats = data.data.stats;
+                        // Display profile info (view only)
+                        document.getElementById('profileInfo').innerHTML = `
+                            <div><strong>Name:</strong> ${profile.Name || ''}</div>
+                            <div><strong>Phone:</strong> ${profile.Phone || ''}</div>
+                            <div><strong>Emergency Contact:</strong> ${profile.Emergency_Contact || ''}</div>
+                            <div><strong>Area:</strong> ${profile.Area || ''}</div>
+                            <div><strong>Police Station:</strong> ${profile.PS || ''}</div>
+                            <div><strong>Gender:</strong> ${profile.Gender || ''}</div>
+                            <div><strong>Email:</strong> ${profile.Email || ''}</div>
+                        `;
+                        // Update statistics
+                        document.getElementById('totalTrips').textContent = stats.total_trips || 0;
+                        document.getElementById('completedTrips').textContent = stats.completed_trips || 0;
+                        document.getElementById('totalEarnings').textContent = '৳' + (stats.total_earnings || 0);
+                        document.getElementById('userRating').textContent = stats.rating || '5.0';
+                        // Show student section if user is student
+                        userType = profile.user_type;
+                        if (userType === 'student') {
+                            document.getElementById('studentSection').style.display = 'block';
+                            document.getElementById('studentId').value = profile.Std_ID || '';
+                        }
+                    } else {
+                        showAlert('Error loading profile data: ' + data.message, 'danger');
+                    }
+                })
+                .catch(error => {
+                    showAlert('Error loading profile data', 'danger');
+                    console.error('Error:', error);
+                });
+        }
+
+        // Check login status
+        function checkLoginStatus() {
+            userId = localStorage.getItem('user_id');
+            if (!userId) {
+                window.location.href = 'login.html';
+                return;
+            }
+            loadProfileData();
+        }
+
+        // Initialize
+        window.addEventListener('load', checkLoginStatus);
+    </script>

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose Account Type - DA Transporter</title>
+    <style>
+        :root {
+            --primary: #000000;
+            --secondary: #FFFFFF;
+            --accent: #FF5E5B;
+            --success: #4CAF50;
+            --shadow: 8px 8px 0px var(--primary);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+        }
+
+        body {
+            background-color: var(--secondary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+        }
+
+        .header {
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 32px;
+            font-weight: 900;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            color: var(--primary);
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .option-card {
+            background-color: var(--secondary);
+            border: 3px solid var(--primary);
+            box-shadow: var(--shadow);
+            padding: 40px 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .option-card::before {
+            content: '';
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            right: -6px;
+            bottom: -6px;
+            border: 3px solid var(--primary);
+            z-index: -1;
+        }
+
+        .option-card:hover {
+            transform: translate(-4px, -4px);
+            box-shadow: 12px 12px 0px var(--primary);
+        }
+
+        .option-card.selected {
+            background-color: var(--accent);
+            color: var(--secondary);
+        }
+
+        .option-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .option-title {
+            font-size: 24px;
+            font-weight: 900;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .option-description {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .option-features {
+            font-size: 12px;
+            font-weight: bold;
+            text-align: left;
+        }
+
+        .option-features ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .option-features li {
+            margin-bottom: 5px;
+        }
+
+        .option-features li::before {
+            content: '• ';
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        .option-card.selected .option-features li::before {
+            color: var(--secondary);
+        }
+
+        .continue-btn {
+            padding: 20px 40px;
+            background-color: var(--success);
+            color: var(--secondary);
+            border: 3px solid var(--primary);
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            font-family: 'Courier New', monospace;
+            opacity: 0.5;
+        }
+
+        .continue-btn:hover {
+            box-shadow: 6px 6px 0px var(--primary);
+            transform: translate(-3px, -3px);
+        }
+
+        .continue-btn.enabled {
+            opacity: 1;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background-color: var(--secondary);
+            color: var(--primary);
+            border: 3px solid var(--primary);
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            box-shadow: 4px 4px 0px var(--primary);
+            transform: translate(-2px, -2px);
+        }
+
+        @media (max-width: 768px) {
+            .options-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .option-card {
+                padding: 30px 20px;
+            }
+            
+            .option-icon {
+                font-size: 48px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.php" class="back-btn">← BACK</a>
+    
+    <div class="container">
+        <div class="header">
+            <h1>Choose Your Account Type</h1>
+            <div class="subtitle">Select how you want to use DA Transporter</div>
+        </div>
+
+        <div class="options-container">
+            <div class="option-card" data-type="student" onclick="selectOption('student')">
+                <div class="option-icon">🎓</div>
+                <div class="option-title">Student / Rider</div>
+                <div class="option-description">Join rides and travel with others</div>
+                <div class="option-features">
+                    <ul>
+                        <li>Find and join available rides</li>
+                        <li>Book bus seats</li>
+                        <li>Share travel costs</li>
+                        <li>Safe and verified drivers</li>
+                        <li>Rate and review trips</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="option-card" data-type="driver" onclick="selectOption('driver')">
+                <div class="option-icon">🚗</div>
+                <div class="option-title">Driver</div>
+                <div class="option-description">Offer rides and earn money</div>
+                <div class="option-features">
+                    <ul>
+                        <li>Create and manage rides</li>
+                        <li>Earn money from passengers</li>
+                        <li>Set your own schedule</li>
+                        <li>Manage multiple vehicles</li>
+                        <li>Build your driver rating</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <button class="continue-btn" id="continueBtn" onclick="proceedToRegistration()">
+            Continue to Registration
+        </button>
+    </div>
+
+    <script>
+        let selectedType = null;
+
+        function selectOption(type) {
+            // Remove selection from all cards
+            document.querySelectorAll('.option-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Add selection to clicked card
+            document.querySelector(`[data-type="${type}"]`).classList.add('selected');
+            
+            selectedType = type;
+            
+            // Enable continue button
+            const continueBtn = document.getElementById('continueBtn');
+            continueBtn.classList.add('enabled');
+        }
+
+        function proceedToRegistration() {
+            if (!selectedType) {
+                alert('Please select an account type first!');
+                return;
+            }
+            
+            // Store selection and redirect to registration
+            localStorage.setItem('selected_user_type', selectedType);
+            window.location.href = 'register.html';
+        }
+
+        // Check if user is already logged in
+        if (localStorage.getItem('user_logged_in') === 'true') {
+            window.location.href = 'dashboard.html';
+        }
+    </script>
+</body>
+</html>
