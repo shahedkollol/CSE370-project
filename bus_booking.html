@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bus Booking - DA Transporter</title>
+    <style>
+        :root {
+            --primary: #000000;
+            --secondary: #FFFFFF;
+            --accent: #FF5E5B;
+            --success: #4CAF50;
+            --warning: #FFC107;
+            --shadow: 8px 8px 0px var(--primary);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+        }
+
+        body {
+            background-color: var(--secondary);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--secondary);
+            border: 3px solid var(--primary);
+            box-shadow: var(--shadow);
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            right: -6px;
+            bottom: -6px;
+            border: 3px solid var(--primary);
+            z-index: -1;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--primary);
+            text-transform: uppercase;
+            text-decoration: none;
+        }
+
+        .back-btn {
+            padding: 10px 20px;
+            background-color: var(--secondary);
+            color: var(--primary);
+            border: 3px solid var(--primary);
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            box-shadow: 4px 4px 0px var(--primary);
+            transform: translate(-2px, -2px);
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section {
+            background-color: var(--secondary);
+            border: 3px solid var(--primary);
+            box-shadow: var(--shadow);
+            padding: 25px;
+            position: relative;
+        }
+
+        .section::before {
+            content: '';
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            right: -6px;
+            bottom: -6px;
+            border: 3px solid var(--primary);
+            z-index: -1;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 12px;
+            border: 3px solid var(--primary);
+            background-color: var(--secondary);
+            color: var(--primary);
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            box-shadow: 4px 4px 0px var(--primary);
+            transform: translate(-2px, -2px);
+        }
+
+        .form-input.error {
+            border-color: var(--accent);
+            background-color: #ffe6e6;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            background-color: var(--accent);
+            color: var(--secondary);
+            border: 3px solid var(--primary);
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            width: 100%;
+        }
+
+        .btn:hover {
+            box-shadow: 4px 4px 0px var(--primary);
+            transform: translate(-2px, -2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .bus-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .bus-item {
+            border: 2px solid var(--primary);
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .bus-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .bus-item.selected {
+            background-color: var(--accent);
+            color: var(--secondary);
+        }
+
+        .bus-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .bus-id {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .bus-type {
+            padding: 5px 10px;
+            background-color: var(--success);
+            color: var(--secondary);
+            border: 2px solid var(--primary);
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .bus-schedule {
+            font-size: 14px;
+            color: var(--primary);
+        }
+
+        .selected-bus-info {
+            background-color: #f0f8ff;
+            border: 2px solid var(--accent);
+            padding: 15px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .selected-bus-info.show {
+            display: block;
+        }
+
+        .booking-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .booking-item {
+            border: 2px solid var(--primary);
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .booking-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .booking-code {
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .status {
+            padding: 5px 10px;
+            border: 2px solid var(--primary);
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-booked { background-color: var(--warning); }
+        .status-confirmed { background-color: var(--success); color: var(--secondary); }
+        .status-cancelled { background-color: #9E9E9E; color: var(--secondary); }
+
+        .booking-details {
+            font-size: 14px;
+            color: var(--primary);
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 3px solid var(--primary);
+            font-weight: bold;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: var(--success);
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            color: var(--accent);
+        }
+
+        .required {
+            color: var(--accent);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="index_page.html" class="logo">DA TRANSPORTER</a>
+        <a href="dashboard.html" class="back-btn">BACK TO DASHBOARD</a>
+    </div>
+
+    <div class="container">
+        <!-- Bus Booking Form -->
+        <div class="section">
+            <div class="section-title">🚌 Book Entire Bus</div>
+            
+            <div id="alertContainer"></div>
+            
+            <form id="bookingForm">
+                <!-- NID Input Field -->
+                <div class="form-group">
+                    <label class="form-label">National ID (NID) <span class="required">*</span></label>
+                    <input 
+                        type="text" 
+                        id="nidInput" 
+                        name="nid" 
+                        class="form-input" 
+                        placeholder="Enter your National ID number"
+                        required
+                        maxlength="20"
+                    >
+                </div>
+
+                <!-- Bus Selection -->
+                <div class="form-group">
+                    <label class="form-label">Select Bus & Schedule <span class="required">*</span></label>
+                    <div class="bus-list" id="busList">
+                        <div style="text-align: center; padding: 20px; color: #666;">
+                            Loading available buses...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Selected Bus Info -->
+                <div class="selected-bus-info" id="selectedBusInfo">
+                    <strong>Selected Bus:</strong>
+                    <div id="selectedBusDetails"></div>
+                </div>
+
+                <input type="hidden" id="selectedBusId" name="bus_id">
+                
+                <button type="submit" class="btn" id="bookBtn" disabled>
+                    BOOK ENTIRE BUS
+                </button>
+            </form>
+        </div>
+
+        <!-- My Bookings -->
+        <div class="section">
+            <div class="section-title">📋 My Bus Bookings</div>
+            
+            <div class="booking-list" id="bookingList">
+                <div style="text-align: center; padding: 20px; color: #666;">
+                    Loading your bookings...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedBus = null;
+
+        function showAlert(message, type = 'error') {
+            const container = document.getElementById('alertContainer');
+            container.innerHTML = `
+                <div class="alert alert-${type}">
+                    ${message}
+                </div>
+            `;
+            
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 5000);
+        }
+
+        function validateNID(nid) {
+            // Basic NID validation
+            if (!nid || nid.trim().length === 0) {
+                return false;
+            }
+            
+            // Remove spaces 
+            const cleanNID = nid.replace(/\s/g, '');
+            return /^\d+$/.test(cleanNID) && cleanNID.length >= 10;
+        }
+
+        function selectBus(busId, busInfo) {
+            selectedBus = busInfo;
+            document.getElementById('selectedBusId').value = busId;
+            
+            // Update visual selection
+            document.querySelectorAll('.bus-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            document.querySelector(`[data-bus-id="${busId}"]`).classList.add('selected');
+            
+            // Show selected bus info
+            const selectedBusInfo = document.getElementById('selectedBusInfo');
+            const selectedBusDetails = document.getElementById('selectedBusDetails');
+            
+            selectedBusDetails.innerHTML = `
+                <div style="margin-top: 10px;">
+                    <div><strong>Bus ID:</strong> ${busInfo.Bus_ID}</div>
+                    <div><strong>Type:</strong> ${busInfo.Bus_Type}</div>
+                    <div><strong>Capacity:</strong> ${busInfo.Capacity} seats</div>
+                    <div><strong>License:</strong> ${busInfo.License_Num || 'N/A'}</div>
+                    <div><strong>Schedule:</strong> ${busInfo.Schedule || 'Flexible timing'}</div>
+                </div>
+            `;
+            
+            selectedBusInfo.classList.add('show');
+            
+            // Enable/disable submit button based on form validity
+            validateForm();
+        }
+
+        function validateForm() {
+            const nid = document.getElementById('nidInput').value.trim();
+            const busSelected = selectedBus !== null;
+            const bookBtn = document.getElementById('bookBtn');
+            
+            // Remove previous error styling
+            document.getElementById('nidInput').classList.remove('error');
+            
+            if (validateNID(nid) && busSelected) {
+                bookBtn.disabled = false;
+            } else {
+                bookBtn.disabled = true;
+                
+                // Add error styling to NID field if invalid
+                if (!validateNID(nid) && nid.length > 0) {
+                    document.getElementById('nidInput').classList.add('error');
+                }
+            }
+        }
+
+        function loadAvailableBuses() {
+            fetch('get_buses.php')
+                .then(response => response.json())
+                .then(data => {
+                    const busList = document.getElementById('busList');
+                    
+                    if (data.success && data.data.length > 0) {
+                        busList.innerHTML = '';
+                        data.data.forEach(bus => {
+                            const busItem = document.createElement('div');
+                            busItem.className = 'bus-item';
+                            busItem.setAttribute('data-bus-id', bus.Bus_ID);
+                            busItem.onclick = () => selectBus(bus.Bus_ID, bus);
+                            
+                            busItem.innerHTML = `
+                                <div class="bus-info">
+                                    <span class="bus-id">${bus.Bus_ID}</span>
+                                    <span class="bus-type">${bus.Bus_Type}</span>
+                                </div>
+                                <div class="bus-schedule">
+                                    Schedule: ${bus.Schedule || 'Flexible timing'}
+                                </div>
+                                <div class="bus-schedule">
+                                    Capacity: ${bus.Capacity} seats | License: ${bus.License_Num || 'N/A'}
+                                </div>
+                            `;
+                            
+                            busList.appendChild(busItem);
+                        });
+                    } else {
+                        busList.innerHTML = '<div style="text-align: center; padding: 20px;">No buses available</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading buses:', error);
+                    document.getElementById('busList').innerHTML = '<div style="text-align: center; padding: 20px; color: red;">Error loading buses</div>';
+                });
+        }
+
+        function loadMyBookings() {
+            fetch('get_bookings.php')
+                .then(response => response.json())
+                .then(data => {
+                    const bookingList = document.getElementById('bookingList');
+                    
+                    if (data.success && data.data.length > 0) {
+                        bookingList.innerHTML = '';
+                        data.data.forEach(booking => {
+                            const bookingItem = document.createElement('div');
+                            bookingItem.className = 'booking-item';
+                            
+                            bookingItem.innerHTML = `
+                                <div class="booking-header">
+                                    <span class="booking-code">${booking.Book_Code}</span>
+                                    <span class="status status-${booking.Booking_Status.toLowerCase()}">${booking.Booking_Status}</span>
+                                </div>
+                                <div class="booking-details">
+                                    <div>Bus ID: ${booking.Bus_ID}</div>
+                                    <div>NID: ${booking.NID}</div>
+                                    <div>Booked: ${new Date(booking.Booked_At).toLocaleString()}</div>
+                                    <div>Payment: ${booking.Payment_Status}</div>
+                                </div>
+                            `;
+                            
+                            bookingList.appendChild(bookingItem);
+                        });
+                    } else {
+                        bookingList.innerHTML = '<div style="text-align: center; padding: 20px;">No bookings found</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading bookings:', error);
+                    document.getElementById('bookingList').innerHTML = '<div style="text-align: center; padding: 20px; color: red;">Error loading bookings</div>';
+                });
+        }
+
+        // Add event listeners for form validation
+        document.getElementById('nidInput').addEventListener('input', validateForm);
+        document.getElementById('nidInput').addEventListener('blur', function() {
+            const nid = this.value.trim();
+            if (nid.length > 0 && !validateNID(nid)) {
+                showAlert('Please enter a valid National ID number (at least 10 digits)');
+                this.classList.add('error');
+            } else {
+                this.classList.remove('error');
+            }
+        });
+
+        document.getElementById('bookingForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const nid = document.getElementById('nidInput').value.trim();
+            
+            // Validate NID
+            if (!validateNID(nid)) {
+                showAlert('Please enter a valid National ID number!');
+                document.getElementById('nidInput').classList.add('error');
+                return;
+            }
+            
+            // Validate bus selection
+            if (!selectedBus) {
+                showAlert('Please select a bus first!');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('bus_id', selectedBus.Bus_ID);
+            formData.append('nid', nid);
+
+            document.getElementById('bookBtn').disabled = true;
+            document.getElementById('bookBtn').textContent = 'BOOKING...';
+
+            fetch('book_bus.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert(data.message, 'success');
+                    loadMyBookings(); // Refresh bookings list
+                    
+                    // Reset form
+                    document.getElementById('nidInput').value = '';
+                    document.getElementById('nidInput').classList.remove('error');
+                    selectedBus = null;
+                    document.getElementById('selectedBusId').value = '';
+                    document.getElementById('selectedBusInfo').classList.remove('show');
+                    document.querySelectorAll('.bus-item').forEach(item => {
+                        item.classList.remove('selected');
+                    });
+                } else {
+                    showAlert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error booking bus:', error);
+                showAlert('Error occurred while booking. Please try again.');
+            })
+            .finally(() => {
+                document.getElementById('bookBtn').disabled = false;
+                document.getElementById('bookBtn').textContent = 'BOOK ENTIRE BUS';
+                validateForm(); // Re-validate form state
+            });
+        });
+
+        // Check login status
+        function checkLoginStatus() {
+            const userId = localStorage.getItem('user_id');
+            if (!userId) {
+                alert('Please login first!');
+                window.location.href = 'login.html';
+                return;
+            }
+        }
+
+        // Initialize page
+        window.addEventListener('load', function() {
+            checkLoginStatus();
+            loadAvailableBuses();
+            loadMyBookings();
+        });
+    </script>
+</body>
+</html>
